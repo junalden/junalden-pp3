@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Custom Scrollbar Example</title>
+    <style>
+      body {
+        background-color: #18181b;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        padding-right: 40px;
+        margin: 0;
+      }
+
+      .demo {
+        height: 280px;
+        overflow-y: auto;
+        width: 50px;
+      }
+
+      .h500 {
+        height: 500px;
+      }
+
+      /* Scrollbar Style for scroll-5 */
+      .scroll-5 {
+        --scroll-size: 15px;
+        --scroll-radius: 20px;
+        --scroll-track: rgba(255, 255, 255, 0.1);
+        --scroll-thumb: linear-gradient(45deg, #00aeff, #a68eff);
+      }
+
+      /* Webkit-based browsers */
+      .scroll-5::-webkit-scrollbar {
+        width: 15px;
+      }
+
+      .scroll-5::-webkit-scrollbar-track {
+        background-color: rgba(255, 255, 255, 0.1);
+        border-radius: 20px;
+      }
+
+      .scroll-5::-webkit-scrollbar-thumb {
+        background-image: linear-gradient(45deg, #00aeff, #a68eff);
+        border-radius: 20px;
+      }
+
+      /* Firefox */
+      @supports not (selector(::-webkit-scrollbar-thumb)) {
+        .scroll-5 {
+          scrollbar-color: linear-gradient(45deg, #00aeff, #a68eff)
+            rgba(255, 255, 255, 0.1);
+          scrollbar-width: thin;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="demo">
+      <div class="scroll scroll-5">
+        <div class="h500"></div>
+      </div>
+    </div>
+  </body>
+</html>

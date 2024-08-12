@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PC and Brain Icons with Pulsing Arrows</title>
+    <link rel="stylesheet" href="styles.css" />
+    <style>
+      /* Font Awesome for icons */
+      @import url("https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css");
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        background-color: #f0f0f0;
+        margin: 0;
+        overflow: hidden;
+      }
+
+      .icon-container {
+        display: flex;
+        align-items: center;
+        position: relative;
+        width: 20rem; /* Adjust as needed */
+        height: 6rem; /* Adjust as needed */
+      }
+
+      .icon {
+        font-size: 4rem; /* Adjust for the desired size */
+        transition: transform 0.5s ease-in-out;
+      }
+
+      .brain {
+        color: #f1ccc9;
+        animation: pulseBrain 2s infinite;
+      }
+
+      .monitor {
+        color: #8ac4df;
+        animation: pulseMonitor 2s infinite;
+      }
+
+      .arrows {
+        font-size: 2rem; /* Adjust for the desired size */
+        color: #ffffff;
+        margin: 0 1rem; /* Adjust spacing between icons */
+        animation: pulseArrows 2s infinite;
+      }
+
+      @keyframes pulseMonitor {
+        0% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(0.8);
+        }
+        100% {
+          transform: scale(1);
+        }
+      }
+
+      @keyframes pulseBrain {
+        0% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(0.8);
+        }
+        100% {
+          transform: scale(1);
+        }
+      }
+
+      @keyframes pulseArrows {
+        0% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.5;
+        }
+        100% {
+          opacity: 1;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="icon-container">
+      <i class="icon fas fa-brain brain"></i>
+      <!-- Brain icon on the left -->
+      <div class="arrows">>>></div>
+      <!-- Animated arrows -->
+      <i class="icon fas fa-desktop monitor"></i>
+      <!-- Monitor icon on the right -->
+    </div>
+  </body>
+</html>

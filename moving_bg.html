@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Scrolling Image Effect</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: black; /* Set the background to black */
+        color: white; /* Set text color to white for contrast */
+        overflow-x: hidden; /* Prevent horizontal scroll */
+        height: 200vh; /* Increase height for scrolling effect */
+      }
+      .container {
+        position: relative;
+        width: 100%;
+        height: 100vh; /* Full viewport height */
+      }
+      .gif-container,
+      .note-container {
+        position: fixed; /* Fix position so it stays visible during scroll */
+        top: 0;
+        width: 30%; /* Adjust width to resize GIF */
+        height: auto; /* Maintain aspect ratio */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: rgba(
+          0,
+          0,
+          0,
+          0.8
+        ); /* Black background with transparency */
+        padding: 20px; /* Optional padding */
+        box-sizing: border-box; /* Include padding in width/height */
+        transition: transform 0.2s ease; /* Smooth transition for movement */
+      }
+      .gif-container {
+        left: 0; /* Position on the left side */
+      }
+      .note-container {
+        right: 0; /* Position on the right side */
+      }
+      img {
+        max-width: 100%;
+        max-height: 100%;
+        opacity: 0.9; /* Slightly transparent GIF */
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <!-- Left side image -->
+      <div class="gif-container">
+        <img src="./Images/nTv.gif" alt="Left Image" />
+      </div>
+      <!-- Right side image -->
+      <div class="note-container">
+        <img src="./Images/note.gif" alt="Right Image" />
+      </div>
+    </div>
+    <script>
+      window.addEventListener("scroll", function () {
+        const gifContainer = document.querySelector(".gif-container");
+        const noteContainer = document.querySelector(".note-container");
+
+        // Left image movement
+        const windowTop = window.scrollY;
+        const translateXLeft = windowTop / 2; // Adjust the divisor for the left image movement speed
+        gifContainer.style.transform = `translateX(-${translateXLeft}px)`;
+
+        // Right image movement
+        const translateXRight = windowTop / 2; // Adjust the divisor for the right image movement speed
+        noteContainer.style.transform = `translateX(${translateXRight}px)`;
+      });
+    </script>
+  </body>
+</html>

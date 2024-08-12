@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Embedded YouTube Video</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+        background-color: #f4f4f4;
+      }
+      #video-container {
+        text-align: center;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="video-container"></div>
+
+    <script>
+      // Replace 'VIDEO_ID' with the actual video ID
+      const videoId = "dQw4w9WgXcQ";
+
+      // Create an iframe element
+      const iframe = document.createElement("iframe");
+
+      // Set the necessary attributes for the iframe
+      iframe.width = "560"; // Set the width of the video player
+      iframe.height = "315"; // Set the height of the video player
+      iframe.src = `https://www.youtube.com/embed/${videoId}`;
+      iframe.frameBorder = "0";
+      iframe.allow =
+        "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share";
+      iframe.allowFullscreen = false; // Allow fullscreen mode
+
+      // Append the iframe to the video-container div
+      document.getElementById("video-container").appendChild(iframe);
+    </script>
+  </body>
+</html>

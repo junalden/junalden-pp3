@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>YouTube Transcript</title>
+  </head>
+  <body>
+    <h1>TurboRecap</h1>
+    <form id="transcriptForm">
+      <h4>
+        TurboRecap delivers lightning-fast video summaries. Powered by AI, it
+        transcribes and condenses YouTube videos into quick, easy-to-digest
+        summaries. Get the key insights in seconds with TurboRecap.
+      </h4>
+      <label for="video_id">YouTube Video ID:</label>
+      <input type="text" id="video_id" name="video_id" required />
+      <button type="submit">Get Transcript</button>
+    </form>
+    <div id="transcript"></div>
+
+    <script>
+      document
+        .getElementById("transcriptForm")
+        .addEventListener("submit", function (event) {
+          event.preventDefault();
+          const videoId = document.getElementById("video_id").value;
+
+          fetch("https://jb-youtube-api.onrender.com", {
+            method: "POST",
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body: "video_id=" + encodeURIComponent(videoId),
+          })
+            .then((response) => response.json())
+            .then((data) => {
+              const transcriptDiv = document.getElementById("transcript");
+              if (data.error) {
+                transcriptDiv.innerHTML = `<p>Error: ${data.error}</p>`;
+              } else {
+                const transcriptHtml = data
+                  .map((line) => `<p>${line.text}</p>`)
+                  .join("");
+                transcriptDiv.innerHTML = transcriptHtml;
+              }
+            })
+            .catch((error) => {
+              document.getElementById(
+                "transcript"
+              ).innerHTML = `<p>An error occurred: ${error}</p>`;
+            });
+        });
+    </script>
+  </body>
+</html>

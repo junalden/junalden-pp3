@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"
+    />
+
+    <link rel="stylesheet" href="./CSS/style.css" />
+    <link rel="stylesheet" href="./CSS/utilities.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap"
+      rel="stylesheet"
+    />
+
+    <script src="./JS/script.js" defer></script>
+    <!-- did not notice defer until I put in jspdf, this was copied on Sir Ryan's Cinezone -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <!-- https://www.geeksforgeeks.org/how-to-generate-pdf-file-using-jspdf-library/ -->
+
+    <link rel="icon" href="./Images/favicon.ico" type="image/x-icon" />
+
+    <title>TurboRecap</title>
+  </head>
+
+  <body>
+    <header>
+      <div class="container">
+        <div class="logo">
+          <img src="./Images/logo.png" alt="TurboRecap Logo" />
+        </div>
+        <nav>
+          <ul>
+            <li><a href="#">Home</a></li>
+            <li><a href="#">About</a></li>
+            <li><a href="#">Blog</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+
+    <!-- Add this HTML where you want the images to appear -->
+    <div class="gif-container">
+      <img src="./Images/nTv.gif" alt="Left Image" />
+    </div>
+    <div class="note-container">
+      <img src="./Images/note.gif" alt="Right Image" />
+    </div>
+
+    <main>
+      <div class="container">
+        <h1>Fast-Track <br />Your Insights.</h1>
+        <h3>
+          TurboRecap delivers lightning-fast video summaries. Powered by AI, it
+          transcribes and condenses YouTube videos into quick, easy-to-digest
+          summaries. Get the key insights in seconds with TurboRecap.
+        </h3>
+
+        <form id="video-form">
+          <input
+            type="text"
+            id="youtube-link"
+            name="youtube-link"
+            placeholder="Enter YouTube link"
+          />
+          <button type="submit">Generate Transcript</button>
+        </form>
+
+        <div class="generated-data" id="generated-data">
+          <div class="generated-data-col">
+            <h3>Youtube Video</h3>
+            <div id="video-container"></div>
+
+            <!-- https://www.w3schools.com/jsref/tryit.asp?filename=tryjsref_element_innerhtml -->
+            <div id="video-details"></div>
+          </div>
+
+          <div class="generated-data-col">
+            <div class="menu-container">
+              <button
+                class="transcript-menu transcript-menu-active"
+                id="transcript-btn"
+              >
+                Transcript
+              </button>
+              <button class="transcript-menu" id="summarize-btn" disabled>
+                Summarize
+              </button>
+            </div>
+
+            <div>
+              <div class="transcript-text-box">
+                <div id="transcript"></div>
+                <div id="summary"></div>
+              </div>
+            </div>
+
+            <!-- LOADER -->
+            <div class="loader">
+              <div class="icon-container">
+                <i class="icon fas fa-file-alt notepad pulse-notepad"></i>
+                <i class="icon fas fa-pencil-alt pencil pulse-pencil"></i>
+              </div>
+              <div class="transcribing-text">Transcribing Data</div>
+            </div>
+
+            <div class="loader-summary">
+              <div class="icon-container-summary">
+                <div><i class="icon fas fa-brain brain"></i></div>
+
+                <div class="arrows">>>></div>
+                <div><i class="icon fas fa-desktop monitor"></i></div>
+              </div>
+              <div class="summarize-loader-text">
+                AI is summarizing the data.
+              </div>
+            </div>
+
+            <div>
+              <p></p>
+            </div>
+          </div>
+          <div></div>
+          <div>
+            <button id="download-pdf-btn">Download Summary as PDF</button>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <section id="how">
+      <div class="container">
+        <h2>How It Works</h2>
+        <div class="flex-items">
+          <div class="step">
+            <div class="step-title">Enter the Video Link</div>
+            <div class="step-details">
+              Drop the YouTube video URL into the box on the website.
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-title">Request a Transcription</div>
+            <div class="step-details">
+              Click the “Generate Transcript” button, and it will fetch the
+              transcript from the YouTube video.
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-title">Read the Summary</div>
+            <div class="step-details">
+              Once the transcript is ready, you can view the summary on the
+              Summary tab and save it as a PDF.
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="quote">
+      <div class="container">
+        <h1>
+          "Knowledge is the food of the soul, and summaries are the bite-sized
+          pieces that make it digestible."
+        </h1>
+      </div>
+    </section>
+
+    <section id="about">
+      <div class="container">
+        <div class="about-box">
+          <h2>About This Project</h2>
+          <p>
+            Due to a busy work schedule, I found myself falling behind in my
+            part-time web development classes at KodeGO. To address this
+            challenge as part of my coursework (KodeGo-PP3), I developed a
+            website that utilizes the YouTube API and Gemini API. The goal of
+            this project is to create a tool that generates summaries of lesson
+            recordings from YouTube, helping me catch up on missed content and
+            enhance my learning experience while fulfilling the requirements of
+            the KodeGo PP3 project. <br />
+            <br />If you have stumbled upon this site, I hope you find it
+            useful! I have also documented the steps I took to create the site
+            in the blog section. I hope you find the process insightful and
+            helpful for your own projects. &#128578;
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      <div class="container">
+        <div class="social">
+          <a href="#"><i class="fab fa-facebook fa-2x"></i></a>
+          <a href="#"><i class="fab fa-twitter fa-2x"></i></a>
+          <a href="#"><i class="fab fa-youtube fa-2x"></i></a>
+          <a href="#"><i class="fab fa-linkedin fa-2x"></i></a>
+        </div>
+        <p>Copyright © 2024 | Jun Alden Bondoc</p>
+      </div>
+    </footer>
+  </body>
+</html>
