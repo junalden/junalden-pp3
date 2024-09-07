@@ -190,7 +190,7 @@ async function loadSummary() {
 }
 
 async function generateAIResponse(text) {
-  const apiKey = "AIzaSyATdOo-sWAQqVPmdaf8nHZvUhmn8Sc3aGw"; //  Gemini API key
+  const apiKey = "AIzaSyD4YshrZAd_paKOCrQOTpFzL0Xx7XTjn28"; //  Gemini API key
   const apiEndpoint =
     "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent";
 
