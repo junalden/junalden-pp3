@@ -2,6 +2,35 @@
 let summaryLoaded = false;
 console.log(`Summary Loaded: ${summaryLoaded}`);
 
+// YouTube URL validation function
+function extractVideoId(url) {
+  if (!url || typeof url !== 'string') return null;
+  
+  // Remove whitespace
+  url = url.trim();
+  
+  // Regular expression patterns for different YouTube URL formats
+  const patterns = [
+    /(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/,
+    /youtube\.com\/embed\/([a-zA-Z0-9_-]{11})/,
+    /youtube\.com\/v\/([a-zA-Z0-9_-]{11})/
+  ];
+  
+  for (const pattern of patterns) {
+    const match = url.match(pattern);
+    if (match && match[1]) {
+      return match[1];
+    }
+  }
+  
+  // Check if it's just a video ID
+  if (/^[a-zA-Z0-9_-]{11}$/.test(url)) {
+    return url;
+  }
+  
+  return null;
+}
+
 // Send YouTube video
 document
   .querySelector("#video-form")
@@ -9,10 +38,18 @@ document
     event.preventDefault();
 
     const youtubeLink = document.querySelector("#youtube-link").value;
-    const videoId = youtubeLink.split("v=")[1]?.split("&")[0];
-    const apiKey = "AIzaSyDlVpiIjSAadiIYC9zj7Lsv73UVu0M-2Lw"; //  YouTube Data API key
+    const videoId = extractVideoId(youtubeLink);
+
+    if (!videoId) {
+      alert("Invalid YouTube URL. Please enter a valid YouTube link (e.g., https://youtube.com/watch?v=VIDEO_ID or https://youtu.be/VIDEO_ID)");
+      return;
+    }
 
     if (videoId) {
+      // Reset summary state for new video
+      summaryLoaded = false;
+      updateButtonVisibility();
+      
       try {
         // Create and append the iframe
         const iframe = document.createElement("iframe");
@@ -26,7 +63,7 @@ document
         videoContainer.innerHTML = "";
         videoContainer.appendChild(iframe);
 
-        fetch("https://jb-youtube-api.onrender.com", {
+        fetch(CONFIG.BACKEND_API_URL, {
           method: "POST",
           headers: { "Content-Type": "application/x-www-form-urlencoded" },
           body: "video_id=" + encodeURIComponent(videoId),
@@ -35,7 +72,10 @@ document
           .then((data) => {
             const transcriptDiv = document.querySelector("#transcript");
             if (data.error) {
-              transcriptDiv.innerHTML = `<p>Error: ${data.error}</p>`;
+              transcriptDiv.innerHTML = `<p class="error-message">Error: ${data.error}</p>`;
+              document.querySelector(".loader").style.display = "none";
+              // Disable summarize button if transcript fails
+              document.querySelector("#summarize-btn").disabled = true;
             } else {
               const transcriptHtml = data
                 .map((line) => {
@@ -56,19 +96,33 @@ document
             }
           })
           .catch((error) => {
+            console.error("Transcript fetch error:", error);
             document.querySelector(
               "#transcript"
-            ).innerHTML = `<p>An error occurred: ${error}</p>`;
+            ).innerHTML = `<p class="error-message">Failed to fetch transcript. The server may be unavailable or the video may not have captions enabled.</p>`;
+            document.querySelector(".loader").style.display = "none";
+            document.querySelector("#summarize-btn").disabled = true;
           });
 
-        // Fetch video details from YouTube Data API
-        const response = await fetch(
-          `https://www.googleapis.com/youtube/v3/videos?id=${videoId}&key=${apiKey}&part=snippet,contentDetails`
-        );
-        const data = await response.json();
-        const videoDetails = data.items[0];
+        // Fetch video details from backend API
+        const response = await fetch(CONFIG.BACKEND_API_URL, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            action: "video_details",
+            video_id: videoId
+          })
+        });
+        
+        if (!response.ok) {
+          throw new Error(`Server responded with ${response.status}`);
+        }
+        
+        const videoDetails = await response.json();
 
-        if (videoDetails) {
+        if (videoDetails && videoDetails.snippet) {
           const title = videoDetails.snippet.title;
           const author = videoDetails.snippet.channelTitle;
           const duration = parseDuration2(videoDetails.contentDetails.duration);
@@ -95,14 +149,12 @@ document
             window.scrollTo({ top: targetPosition, behavior: "smooth" });
           }
         } else {
-          alert("Unable to fetch video details");
+          alert("Unable to fetch video details. The video may not exist or may be private.");
         }
       } catch (error) {
-        alert("An error occurred while fetching video details");
-        console.error(error);
+        console.error("Video details fetch error:", error);
+        alert("An error occurred while fetching video details. Please check your internet connection and try again.");
       }
-    } else {
-      alert("Invalid YouTube link");
     }
   });
 
@@ -190,47 +242,36 @@ async function loadSummary() {
 }
 
 async function generateAIResponse(text) {
-  const apiKey = "AIzaSyD4YshrZAd_paKOCrQOTpFzL0Xx7XTjn28"; //  Gemini API key
-  const apiEndpoint =
-    "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent";
-
   try {
-    const response = await fetch(`${apiEndpoint}?key=${apiKey}`, {
+    // Call backend API for summarization
+    const response = await fetch(CONFIG.BACKEND_API_URL, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        contents: [
-          {
-            parts: [
-              {
-                text: text,
-              },
-            ],
-          },
-        ],
+        action: "summarize",
+        text: text,
       }),
     });
+
+    if (!response.ok) {
+      throw new Error(`Server responded with ${response.status}`);
+    }
 
     const data = await response.json();
     console.log("API Response:", data);
 
-    if (data && data.candidates && data.candidates.length > 0) {
-      const candidate = data.candidates[0];
-      if (
-        candidate &&
-        candidate.content &&
-        candidate.content.parts &&
-        candidate.content.parts.length > 0
-      ) {
-        return candidate.content.parts[0].text.trim();
-      }
+    if (data && data.summary) {
+      return data.summary;
+    } else if (data && data.error) {
+      return `Error: ${data.error}`;
     }
+    
     return "No response from the AI.";
   } catch (error) {
-    console.error("Error:", error);
-    return "An error occurred while processing your request.";
+    console.error("Summarization error:", error);
+    return "An error occurred while processing your request. The server may be unavailable.";
   }
 }
 

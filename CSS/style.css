@@ -578,3 +578,14 @@ img {
   font-weight: bold;
   margin-bottom: 0.5rem;
 }
+
+/* Error Message Styling */
+.error-message {
+  color: #ef4444;
+  background-color: #fee;
+  padding: 1rem;
+  border-radius: 5px;
+  border-left: 4px solid #ef4444;
+  margin: 1rem 0;
+  font-weight: 400;
+}

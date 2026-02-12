@@ -1,0 +1,14 @@
+// API Configuration
+// All API keys are now securely stored on the backend server
+// No API keys needed in the frontend!
+
+const CONFIG = {
+  // Backend API URL (your deployed jb-youtube-api server)
+  // The backend handles transcripts, video details, and AI summarization
+  BACKEND_API_URL: "https://your-backend-url.com"
+};
+
+// Export for use in other files
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = CONFIG;
+}
