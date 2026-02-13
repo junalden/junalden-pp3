@@ -2,6 +2,15 @@
 let summaryLoaded = false;
 console.log(`Summary Loaded: ${summaryLoaded}`);
 
+// Determine backend URL safely (fallback if CONFIG was not loaded)
+const BACKEND_URL = (typeof CONFIG !== 'undefined' && CONFIG && CONFIG.BACKEND_API_URL)
+  ? CONFIG.BACKEND_API_URL
+  : 'https://jb-youtube-api.onrender.com';
+
+if (typeof CONFIG === 'undefined') {
+  console.warn('CONFIG is not defined — using BACKEND_URL fallback:', BACKEND_URL);
+}
+
 // YouTube URL validation function
 function extractVideoId(url) {
   if (!url || typeof url !== 'string') return null;
@@ -63,7 +72,7 @@ document
         videoContainer.innerHTML = "";
         videoContainer.appendChild(iframe);
 
-        fetch(CONFIG.BACKEND_API_URL, {
+        fetch(BACKEND_URL, {
           method: "POST",
           headers: { "Content-Type": "application/x-www-form-urlencoded" },
           body: "video_id=" + encodeURIComponent(videoId),
@@ -105,7 +114,7 @@ document
           });
 
         // Fetch video details from backend API
-        const response = await fetch(CONFIG.BACKEND_API_URL, {
+        const response = await fetch(BACKEND_URL, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -244,7 +253,7 @@ async function loadSummary() {
 async function generateAIResponse(text) {
   try {
     // Call backend API for summarization
-    const response = await fetch(CONFIG.BACKEND_API_URL, {
+    const response = await fetch(BACKEND_URL, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
