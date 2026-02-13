@@ -1,15 +1,9 @@
+// Backend API Configuration
+const BACKEND_URL = 'https://jb-youtube-api.onrender.com';
+
 // Set FLAG to only load summary
 let summaryLoaded = false;
 console.log(`Summary Loaded: ${summaryLoaded}`);
-
-// Determine backend URL safely (fallback if CONFIG was not loaded)
-const BACKEND_URL = (typeof CONFIG !== 'undefined' && CONFIG && CONFIG.BACKEND_API_URL)
-  ? CONFIG.BACKEND_API_URL
-  : 'https://jb-youtube-api.onrender.com';
-
-if (typeof CONFIG === 'undefined') {
-  console.warn('CONFIG is not defined — using BACKEND_URL fallback:', BACKEND_URL);
-}
 
 // YouTube URL validation function
 function extractVideoId(url) {

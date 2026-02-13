@@ -1,4 +1,4 @@
-# Configuration files
+# Configuration files (not needed - backend URL is now in script.js)
 JS/config.js
 .env
 
