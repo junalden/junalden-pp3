@@ -297,7 +297,7 @@ footer .container {
 .loader {
   padding-top: 8rem;
   flex: 1;
-  display: flex;
+  display: none; /* Hidden by default, shown via JS */
   justify-content: center;
   align-items: center;
   position: relative;

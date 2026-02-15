@@ -1,5 +1,5 @@
 // Backend API Configuration
-const BACKEND_URL = 'https://jb-youtube-api.onrender.com';
+const BACKEND_URL = "https://jb-youtube-api.onrender.com";
 
 // Set FLAG to only load summary
 let summaryLoaded = false;
@@ -7,30 +7,30 @@ console.log(`Summary Loaded: ${summaryLoaded}`);
 
 // YouTube URL validation function
 function extractVideoId(url) {
-  if (!url || typeof url !== 'string') return null;
-  
+  if (!url || typeof url !== "string") return null;
+
   // Remove whitespace
   url = url.trim();
-  
+
   // Regular expression patterns for different YouTube URL formats
   const patterns = [
     /(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/,
     /youtube\.com\/embed\/([a-zA-Z0-9_-]{11})/,
-    /youtube\.com\/v\/([a-zA-Z0-9_-]{11})/
+    /youtube\.com\/v\/([a-zA-Z0-9_-]{11})/,
   ];
-  
+
   for (const pattern of patterns) {
     const match = url.match(pattern);
     if (match && match[1]) {
       return match[1];
     }
   }
-  
+
   // Check if it's just a video ID
   if (/^[a-zA-Z0-9_-]{11}$/.test(url)) {
     return url;
   }
-  
+
   return null;
 }
 
@@ -44,7 +44,9 @@ document
     const videoId = extractVideoId(youtubeLink);
 
     if (!videoId) {
-      alert("Invalid YouTube URL. Please enter a valid YouTube link (e.g., https://youtube.com/watch?v=VIDEO_ID or https://youtu.be/VIDEO_ID)");
+      alert(
+        "Invalid YouTube URL. Please enter a valid YouTube link (e.g., https://youtube.com/watch?v=VIDEO_ID or https://youtu.be/VIDEO_ID)",
+      );
       return;
     }
 
@@ -52,8 +54,43 @@ document
       // Reset summary state for new video
       summaryLoaded = false;
       updateButtonVisibility();
+
+      // Disable submit button and show loading state
+      const submitBtn = event.target.querySelector('button[type="submit"]');
+      const originalBtnText = submitBtn.textContent;
+      submitBtn.disabled = true;
+      submitBtn.textContent = "Loading...";
+      submitBtn.style.opacity = "0.6";
+      submitBtn.style.cursor = "not-allowed";
+
+      // Clear previous content
+      document.querySelector("#transcript").innerHTML = "";
+      document.querySelector("#summary").innerHTML = "";
+      document.querySelector("#video-details").innerHTML = "";
       
+      // Show loader with appropriate message
+      const loaderText = document.querySelector(".transcribing-text");
+      const loader = document.querySelector(".loader");
+      
+      // Check if this might be a cold start (simple heuristic: check if it's been >14 min since last request)
+      const now = Date.now();
+      const lastRequestTime = window.lastBackendRequest || 0;
+      const timeSinceLastRequest = now - lastRequestTime;
+      
+      if (timeSinceLastRequest > 14 * 60 * 1000) {
+        // Likely cold start
+        loaderText.textContent = "Waking up server... This may take 15-30 seconds on first load";
+      } else {
+        loaderText.textContent = "Transcribing Data";
+      }
+      
+      loader.style.display = "flex";
+      window.lastBackendRequest = now;
+
       try {
+        // Check if server is awake (measure response time)
+        const startTime = Date.now();
+        
         // Create and append the iframe
         const iframe = document.createElement("iframe");
         iframe.width = "330";
@@ -71,7 +108,16 @@ document
           headers: { "Content-Type": "application/x-www-form-urlencoded" },
           body: "video_id=" + encodeURIComponent(videoId),
         })
-          .then((response) => response.json())
+          .then((response) => {
+            const responseTime = Date.now() - startTime;
+            
+            // If response took >10 seconds, it was likely a cold start
+            if (responseTime > 10000) {
+              console.log(`Server was cold starting (took ${responseTime}ms)`);
+            }
+            
+            return response.json();
+          })
           .then((data) => {
             const transcriptDiv = document.querySelector("#transcript");
             if (data.error) {
@@ -84,7 +130,7 @@ document
                 .map((line) => {
                   // Assuming `line.start` is in seconds
                   const formattedTimestamp = parseDuration(
-                    parseFloat(line.start)
+                    parseFloat(line.start),
                   );
                   return `<p><span class="timestamp">${formattedTimestamp}</span> ${line.text}</p>`;
                 })
@@ -96,15 +142,29 @@ document
 
               // Enable summarize button
               document.querySelector("#summarize-btn").disabled = false;
+              
+              // Clear input field after successful load
+              document.querySelector("#youtube-link").value = "";
             }
+            
+            // Re-enable submit button
+            submitBtn.disabled = false;
+            submitBtn.textContent = originalBtnText;
+            submitBtn.style.opacity = "1";
+            submitBtn.style.cursor = "pointer";
           })
           .catch((error) => {
             console.error("Transcript fetch error:", error);
-            document.querySelector(
-              "#transcript"
-            ).innerHTML = `<p class="error-message">Failed to fetch transcript. The server may be unavailable or the video may not have captions enabled.</p>`;
+            document.querySelector("#transcript").innerHTML =
+              `<p class="error-message">Failed to fetch transcript. The server may be unavailable or the video may not have captions enabled.</p>`;
             document.querySelector(".loader").style.display = "none";
             document.querySelector("#summarize-btn").disabled = true;
+            
+            // Re-enable submit button
+            submitBtn.disabled = false;
+            submitBtn.textContent = originalBtnText;
+            submitBtn.style.opacity = "1";
+            submitBtn.style.cursor = "pointer";
           });
 
         // Fetch video details from backend API
@@ -115,14 +175,14 @@ document
           },
           body: JSON.stringify({
             action: "video_details",
-            video_id: videoId
-          })
+            video_id: videoId,
+          }),
         });
-        
+
         if (!response.ok) {
           throw new Error(`Server responded with ${response.status}`);
         }
-        
+
         const videoDetails = await response.json();
 
         if (videoDetails && videoDetails.snippet) {
@@ -152,11 +212,25 @@ document
             window.scrollTo({ top: targetPosition, behavior: "smooth" });
           }
         } else {
-          alert("Unable to fetch video details. The video may not exist or may be private.");
+          alert(
+            "Unable to fetch video details. The video may not exist or may be private.",
+          );
+          // Re-enable submit button
+          submitBtn.disabled = false;
+          submitBtn.textContent = originalBtnText;
+          submitBtn.style.opacity = "1";
+          submitBtn.style.cursor = "pointer";
         }
       } catch (error) {
         console.error("Video details fetch error:", error);
-        alert("An error occurred while fetching video details. Please check your internet connection and try again.");
+        alert(
+          "An error occurred while fetching video details. Please check your internet connection and try again.",
+        );
+        // Re-enable submit button
+        submitBtn.disabled = false;
+        submitBtn.textContent = originalBtnText;
+        submitBtn.style.opacity = "1";
+        submitBtn.style.cursor = "pointer";
       }
     }
   });
@@ -270,7 +344,7 @@ async function generateAIResponse(text) {
     } else if (data && data.error) {
       return `Error: ${data.error}`;
     }
-    
+
     return "No response from the AI.";
   } catch (error) {
     console.error("Summarization error:", error);
